@@ -59,10 +59,13 @@ router.post('/', async (req, res, next) => {
     }
 
     const pricedBookBase = await getBookById(created.id);
-    const price = await estimatePrice(pricedBookBase).catch(() => null);
 
-    if (price && typeof price.estimated_price === 'number') {
-      await updateBookPrice(created.id, price);
+    if (pricedBookBase.manual_price == null) {
+      const price = await estimatePrice(pricedBookBase).catch(() => null);
+
+      if (price && typeof price.estimated_price === 'number') {
+        await updateBookPrice(created.id, price);
+      }
     }
 
     const finalBook = await getBookById(created.id);
@@ -131,6 +134,10 @@ router.post('/:id/refresh-price', async (req, res, next) => {
   try {
     const book = await getBookById(Number(req.params.id));
     if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
+
+    if (book.manual_price != null) {
+      return res.json(book);
+    }
 
     const price = await estimatePrice({ ...book, price_updated_at: null });
     const result = await updateBookPrice(book.id, price);

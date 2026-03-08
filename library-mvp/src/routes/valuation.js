@@ -6,15 +6,15 @@ const { generateLibraryReport } = require('../services/reportService');
 const router = express.Router();
 
 function buildSummary(books) {
-  const pricedBooks = books.filter((book) => typeof book.estimated_price === 'number');
-  const totalValue = pricedBooks.reduce((sum, book) => sum + book.estimated_price, 0);
+  const pricedBooks = books.filter((book) => typeof book.final_price === 'number');
+  const totalValue = pricedBooks.reduce((sum, book) => sum + book.final_price, 0);
 
   return {
     totalBooks: books.length,
     pricedBooks: pricedBooks.length,
     totalValue: Number(totalValue.toFixed(2)),
     averageValue: pricedBooks.length ? Number((totalValue / pricedBooks.length).toFixed(2)) : 0,
-    mostValuable: pricedBooks.sort((a, b) => b.estimated_price - a.estimated_price)[0] || null,
+    mostValuable: pricedBooks.sort((a, b) => b.final_price - a.final_price)[0] || null,
     byCategory: Object.values(
       books.reduce((acc, book) => {
         const key = book.category || 'Sem categoria';
@@ -22,7 +22,7 @@ function buildSummary(books) {
           acc[key] = { category: key, total: 0, qty: 0 };
         }
         acc[key].qty += 1;
-        acc[key].total += book.estimated_price || 0;
+        acc[key].total += book.final_price || 0;
         return acc;
       }, {})
     )
@@ -37,6 +37,11 @@ router.post('/refresh', async (_req, res, next) => {
     const results = [];
 
     for (const book of books) {
+      if (book.manual_price != null) {
+        results.push(book);
+        continue;
+      }
+
       if (!isPriceCacheValid(book)) {
         const price = await estimatePrice(book);
         await updateBookPrice(book.id, price);

@@ -4,6 +4,15 @@ const { open } = require('sqlite');
 
 let db;
 
+async function ensureColumn(table, column, definition) {
+  const columns = await db.all(`PRAGMA table_info(${table})`);
+  const hasColumn = columns.some((entry) => entry.name === column);
+
+  if (!hasColumn) {
+    await db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
 async function initDb() {
   if (db) return db;
 
@@ -57,6 +66,8 @@ async function initDb() {
       UPDATE books SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
     END;
   `);
+
+  await ensureColumn('books', 'manual_price', 'REAL');
 
   return db;
 }
