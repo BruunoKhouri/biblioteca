@@ -1,0 +1,19 @@
+{
+  "name": "library-mvp",
+  "version": "1.0.0",
+  "description": "Sistema de biblioteca com catálogo, metadados automáticos, estimativa de valor, histórico e exportação PDF.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "pdfkit": "^0.15.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  }
+}

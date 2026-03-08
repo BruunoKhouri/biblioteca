@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca | Catálogo</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Minha Biblioteca</h1>
+    </div>
+    <nav>
+      <a class="nav-link active" href="/catalog.html">Catálogo</a>
+      <a class="nav-link" href="/valuation.html">Valor total</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel">
+      <h2>Cadastrar livro</h2>
+      <form id="book-form">
+        <div class="grid two-columns">
+          <label>
+            ISBN
+            <input type="text" name="isbn" placeholder="978..." />
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" name="lookup_by_isbn" checked />
+            Buscar metadados automaticamente por ISBN
+          </label>
+        </div>
+
+        <div class="grid two-columns">
+          <label>
+            Título *
+            <input type="text" name="title" placeholder="Título do livro" required />
+          </label>
+          <label>
+            Autor
+            <input type="text" name="author" placeholder="Autor" />
+          </label>
+          <label>
+            Editora
+            <input type="text" name="publisher" />
+          </label>
+          <label>
+            Ano
+            <input type="number" name="published_year" />
+          </label>
+          <label>
+            Categoria
+            <input type="text" name="category" />
+          </label>
+          <label>
+            Idioma
+            <input type="text" name="language" placeholder="pt, en..." />
+          </label>
+          <label>
+            Preço manual (R$)
+            <input type="number" name="manual_price" step="0.01" min="0" placeholder="Ex: 59.90" />
+          </label>
+          <label>
+            Localização
+            <input type="text" name="shelf_location" placeholder="Estante A, prateleira 2" />
+          </label>
+          <label>
+            Status
+            <select name="status">
+              <option value="nao_lido">Não lido</option>
+              <option value="lendo">Lendo</option>
+              <option value="lido">Lido</option>
+              <option value="emprestado">Emprestado</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Observações
+          <textarea name="notes" rows="3"></textarea>
+        </label>
+
+        <div class="actions">
+          <button type="submit" id="submit-btn">Salvar livro</button>
+          <button type="button" id="cancel-edit-btn" class="secondary hidden">Cancelar edição</button>
+          <button type="button" class="secondary" id="isbn-preview-btn">Pré-visualizar ISBN</button>
+        </div>
+      </form>
+      <div id="form-feedback" class="feedback"></div>
+      <div id="isbn-preview" class="preview-box hidden"></div>
+    </section>
+
+    <section class="panel list-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Catálogo</h2>
+          <p id="book-count">0 livros</p>
+        </div>
+        <input id="search-input" type="search" placeholder="Buscar por título, autor ou ISBN" />
+      </div>
+      <div id="book-list" class="book-list"></div>
+    </section>
+  </main>
+
+  <div id="book-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" onclick="closeBookModal()"></div>
+
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-book-title">
+      <button type="button" class="modal-close" onclick="closeBookModal()">×</button>
+
+      <div class="modal-header">
+        <h2 id="modal-book-title">Detalhes do livro</h2>
+      </div>
+
+      <div id="modal-book-body" class="modal-body"></div>
+
+      <div class="modal-footer">
+        <button type="button" class="secondary" onclick="copyAbntReference()">Copiar referência ABNT</button>
+        <button type="button" onclick="closeBookModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/catalog.js"></script>
+</body>
+
+</html>
