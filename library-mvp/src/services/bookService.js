@@ -39,13 +39,38 @@ function normalizeBookPayload(payload) {
   };
 }
 
+function toNullableNumber(value) {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.replace(',', '.').trim();
+    if (!normalized) return null;
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function decorateBookPrice(book) {
   if (!book) return book;
 
+  const manualPrice = toNullableNumber(book.manual_price);
+  const estimatedPrice = toNullableNumber(book.estimated_price);
+
   return {
     ...book,
-    final_price: book.manual_price ?? book.estimated_price ?? null,
-    final_price_source: book.manual_price != null ? 'manual' : (book.price_source || null)
+    manual_price: manualPrice,
+    estimated_price: estimatedPrice,
+    final_price: manualPrice ?? estimatedPrice ?? null,
+    final_price_source: manualPrice != null ? 'manual' : (book.price_source || null)
   };
 }
 
@@ -256,24 +281,58 @@ async function updateBookPrice(id, priceData) {
 
 async function getPriceHistory(bookId = null) {
   const db = getDb();
+  const params = [];
 
+  let manualFilter = '';
+  let historyFilter = '';
   if (bookId) {
-    return db.all(
-      `SELECT ph.*, b.title
-       FROM price_history ph
-       JOIN books b ON b.id = ph.book_id
-       WHERE ph.book_id = ?
-       ORDER BY ph.created_at DESC`,
-      [bookId]
-    );
+    manualFilter = 'AND b.id = ?';
+    historyFilter = 'AND ph.book_id = ?';
+    params.push(bookId, bookId);
   }
 
-  return db.all(
-    `SELECT ph.*, b.title
-     FROM price_history ph
-     JOIN books b ON b.id = ph.book_id
-     ORDER BY ph.created_at DESC`
+  const rows = await db.all(
+    `
+      SELECT *
+      FROM (
+        SELECT
+          NULL AS id,
+          b.id AS book_id,
+          b.title AS title,
+          b.manual_price AS price,
+          COALESCE(b.price_currency, 'BRL') AS currency,
+          'manual' AS source,
+          'alta' AS confidence,
+          COALESCE(b.updated_at, b.created_at) AS created_at
+        FROM books b
+        WHERE b.manual_price IS NOT NULL
+          ${manualFilter}
+
+        UNION ALL
+
+        SELECT
+          ph.id AS id,
+          ph.book_id AS book_id,
+          b.title AS title,
+          ph.price AS price,
+          ph.currency AS currency,
+          ph.source AS source,
+          ph.confidence AS confidence,
+          ph.created_at AS created_at
+        FROM price_history ph
+        JOIN books b ON b.id = ph.book_id
+        WHERE b.manual_price IS NULL
+          ${historyFilter}
+      )
+      ORDER BY datetime(created_at) DESC
+    `,
+    params
   );
+
+  return rows.map((row) => ({
+    ...row,
+    price: toNullableNumber(row.price)
+  }));
 }
 
 module.exports = {

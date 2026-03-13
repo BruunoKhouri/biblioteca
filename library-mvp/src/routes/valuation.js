@@ -5,24 +5,48 @@ const { generateLibraryReport } = require('../services/reportService');
 
 const router = express.Router();
 
+function toNumber(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  const parsed = Number(String(value).replace(',', '.').trim());
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getBookFinalPrice(book) {
+  const finalPrice = toNumber(book.final_price);
+  if (finalPrice != null) return finalPrice;
+
+  const manualPrice = toNumber(book.manual_price);
+  if (manualPrice != null) return manualPrice;
+
+  return toNumber(book.estimated_price);
+}
+
 function buildSummary(books) {
-  const pricedBooks = books.filter((book) => typeof book.final_price === 'number');
-  const totalValue = pricedBooks.reduce((sum, book) => sum + book.final_price, 0);
+  const booksWithPrice = books
+    .map((book) => {
+      const price = getBookFinalPrice(book);
+      return price == null ? null : { book, price };
+    })
+    .filter(Boolean);
+
+  const totalValue = booksWithPrice.reduce((sum, entry) => sum + entry.price, 0);
+  const mostValuableEntry = booksWithPrice.sort((a, b) => b.price - a.price)[0] || null;
 
   return {
     totalBooks: books.length,
-    pricedBooks: pricedBooks.length,
+    pricedBooks: booksWithPrice.length,
     totalValue: Number(totalValue.toFixed(2)),
-    averageValue: pricedBooks.length ? Number((totalValue / pricedBooks.length).toFixed(2)) : 0,
-    mostValuable: pricedBooks.sort((a, b) => b.final_price - a.final_price)[0] || null,
+    averageValue: booksWithPrice.length ? Number((totalValue / booksWithPrice.length).toFixed(2)) : 0,
+    mostValuable: mostValuableEntry ? mostValuableEntry.book : null,
     byCategory: Object.values(
-      books.reduce((acc, book) => {
-        const key = book.category || 'Sem categoria';
+      booksWithPrice.reduce((acc, entry) => {
+        const key = entry.book.category || 'Sem categoria';
         if (!acc[key]) {
           acc[key] = { category: key, total: 0, qty: 0 };
         }
         acc[key].qty += 1;
-        acc[key].total += book.final_price || 0;
+        acc[key].total += entry.price;
         return acc;
       }, {})
     )

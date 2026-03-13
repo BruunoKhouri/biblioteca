@@ -170,7 +170,7 @@ function applyFilter() {
   const term = (searchInput?.value || '').trim().toLowerCase();
 
   const filtered = books.filter((book) =>
-    [book.title, book.author, book.isbn]
+    [book.title, book.author, book.isbn, book.category]
       .filter(Boolean)
       .some((value) => value.toLowerCase().includes(term))
   );
