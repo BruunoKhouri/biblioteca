@@ -45,6 +45,16 @@ function normalizeAuthorName(author) {
   if (!author) return '';
 
   const cleaned = author.trim().replace(/\s+/g, ' ');
+  if (cleaned.includes(',')) {
+    const [lastName, ...firstNameParts] = cleaned.split(',');
+    const normalizedLastName = (lastName || '').trim().toUpperCase();
+    const normalizedFirstNames = firstNameParts.join(',').trim();
+
+    if (!normalizedLastName) return '';
+    return normalizedFirstNames
+      ? `${normalizedLastName}, ${normalizedFirstNames}`
+      : normalizedLastName;
+  }
   const parts = cleaned.split(' ');
 
   if (parts.length === 1) {
@@ -56,8 +66,61 @@ function normalizeAuthorName(author) {
   return `${lastName}, ${firstNames}`;
 }
 
+function splitAuthorNames(authorField) {
+  if (!authorField) return [];
+
+  const raw = String(authorField).trim();
+  if (!raw) return [];
+
+  const normalizedDelimiters = raw
+    .replace(/\s*;\s*/g, ';')
+    .replace(/\s*\/\s*/g, ';')
+    .replace(/\s+(?:e|and|&)\s+/gi, ';');
+
+  if (normalizedDelimiters.includes(';')) {
+    return normalizedDelimiters
+      .split(';')
+      .map((name) => name.trim())
+      .filter(Boolean);
+  }
+
+  if (raw.includes(',')) {
+    const commaParts = raw
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean);
+
+    if (commaParts.length === 2) {
+      const [firstPart, secondPart] = commaParts;
+      const firstPartIsUppercaseSurname = /^[A-ZÀ-Ý][A-ZÀ-Ý\s.'-]*$/.test(firstPart || '');
+
+      // Mantem apenas o caso de autor unico ja digitado no estilo ABNT.
+      if (firstPartIsUppercaseSurname) {
+        return [raw];
+      }
+
+      // Prioriza o formato comum de metadados: "Nome Sobrenome, Nome Sobrenome".
+      return [firstPart, secondPart];
+    }
+
+    return commaParts;
+  }
+
+  return [raw];
+}
+
+function formatAbntAuthors(authorField) {
+  const authors = splitAuthorNames(authorField)
+    .map(normalizeAuthorName)
+    .filter(Boolean);
+
+  if (!authors.length) return '';
+  if (authors.length <= 3) return authors.join('; ');
+  return `${authors[0]}; et al.`;
+}
+
 function generateAbntReference(book) {
-  const author = book.author ? normalizeAuthorName(book.author) : '';
+  const author = formatAbntAuthors(book.author);
   const title = book.title || 'Título não informado';
   const publisher = book.publisher || '[s.n.]';
   const year = book.published_year || '[s.d.]';
