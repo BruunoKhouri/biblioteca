@@ -23,6 +23,7 @@ function normalizeBookPayload(payload) {
     author: payload.author?.trim() || null,
     isbn: payload.isbn?.replace(/[^0-9Xx]/g, '') || null,
     publisher: payload.publisher?.trim() || null,
+    city: payload.city?.trim() || null,
     published_year:
       payload.published_year !== undefined &&
       payload.published_year !== null &&
@@ -111,6 +112,7 @@ async function createBook(payload) {
       author,
       isbn,
       publisher,
+      city,
       published_year,
       category,
       language,
@@ -119,12 +121,13 @@ async function createBook(payload) {
       status,
       cover_url,
       notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       book.title,
       book.author,
       book.isbn,
       book.publisher,
+      book.city,
       book.published_year,
       book.category,
       book.language,
@@ -164,6 +167,7 @@ async function updateBook(id, payload) {
       author = ?,
       isbn = ?,
       publisher = ?,
+      city = ?,
       published_year = ?,
       category = ?,
       language = ?,
@@ -178,6 +182,7 @@ async function updateBook(id, payload) {
       next.author,
       next.isbn,
       next.publisher,
+      next.city,
       next.published_year,
       next.category,
       next.language,
@@ -207,6 +212,7 @@ async function updateBookMetadata(id, metadata) {
       author = COALESCE(?, author),
       isbn = COALESCE(?, isbn),
       publisher = COALESCE(?, publisher),
+      city = COALESCE(?, city),
       published_year = COALESCE(?, published_year),
       category = COALESCE(?, category),
       language = COALESCE(?, language),
@@ -219,6 +225,7 @@ async function updateBookMetadata(id, metadata) {
       metadata.author || null,
       metadata.isbn || null,
       metadata.publisher || null,
+      metadata.city || null,
       metadata.published_year || null,
       metadata.category || null,
       metadata.language || null,

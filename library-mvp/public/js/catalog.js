@@ -99,6 +99,7 @@ function buildBookDetailsHtml(book) {
         <div><strong>Autor:</strong> ${escapeHtml(book.author || '—')}</div>
         <div><strong>ISBN:</strong> ${escapeHtml(book.isbn || '—')}</div>
         <div><strong>Editora:</strong> ${escapeHtml(book.publisher || '—')}</div>
+        <div><strong>Cidade:</strong> ${escapeHtml(book.city || '—')}</div>
         <div><strong>Ano:</strong> ${escapeHtml(book.published_year || '—')}</div>
         <div><strong>Categoria:</strong> ${escapeHtml(book.category || '—')}</div>
         <div><strong>Idioma:</strong> ${escapeHtml(book.language || '—')}</div>
@@ -170,7 +171,7 @@ function applyFilter() {
   const term = (searchInput?.value || '').trim().toLowerCase();
 
   const filtered = books.filter((book) =>
-    [book.title, book.author, book.isbn, book.category]
+    [book.title, book.author, book.isbn, book.category, book.city]
       .filter(Boolean)
       .some((value) => value.toLowerCase().includes(term))
   );
@@ -185,6 +186,7 @@ function fillForm(book) {
   if (bookForm.elements.title) bookForm.elements.title.value = book.title || '';
   if (bookForm.elements.author) bookForm.elements.author.value = book.author || '';
   if (bookForm.elements.publisher) bookForm.elements.publisher.value = book.publisher || '';
+  if (bookForm.elements.city) bookForm.elements.city.value = book.city || '';
   if (bookForm.elements.published_year) bookForm.elements.published_year.value = book.published_year || '';
   if (bookForm.elements.category) bookForm.elements.category.value = book.category || '';
   if (bookForm.elements.language) bookForm.elements.language.value = book.language || '';
@@ -387,6 +389,7 @@ if (isbnPreviewBtn) {
           <strong>${escapeHtml(data.title || 'Sem título')}</strong><br>
           Autor: ${escapeHtml(data.author || '—')}<br>
           Editora: ${escapeHtml(data.publisher || '—')}<br>
+          Cidade: ${escapeHtml(data.city || '—')}<br>
           Ano: ${escapeHtml(data.published_year || '—')}<br>
           Fonte: ${escapeHtml(data.metadata_source || '—')}
         `;

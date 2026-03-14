@@ -4,6 +4,7 @@ function mapOpenLibraryDoc(doc, isbn) {
     author: Array.isArray(doc.author_name) ? doc.author_name.join(', ') : null,
     isbn: Array.isArray(doc.isbn) ? (doc.isbn.find((value) => value === isbn) || doc.isbn[0]) : isbn,
     publisher: Array.isArray(doc.publisher) ? doc.publisher[0] : null,
+    city: Array.isArray(doc.publish_place) ? doc.publish_place[0] : null,
     published_year: Array.isArray(doc.publish_year) ? doc.publish_year[0] : null,
     category: Array.isArray(doc.subject) ? doc.subject[0] : null,
     language: Array.isArray(doc.language) ? doc.language[0] : null,

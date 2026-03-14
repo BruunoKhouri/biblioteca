@@ -30,6 +30,7 @@ async function initDb() {
       author TEXT,
       isbn TEXT UNIQUE,
       publisher TEXT,
+      city TEXT,
       published_year INTEGER,
       category TEXT,
       language TEXT,
@@ -68,6 +69,7 @@ async function initDb() {
   `);
 
   await ensureColumn('books', 'manual_price', 'REAL');
+  await ensureColumn('books', 'city', 'TEXT');
 
   return db;
 }
