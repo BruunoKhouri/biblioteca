@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca | Categorias</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Livros por categoria</h1>
+      <p>Filtre uma categoria e ordene por titulo, ano, editora ou autor.</p>
+    </div>
+    <nav>
+      <a class="nav-link" href="/catalog.html">Catalogo</a>
+      <a class="nav-link active" href="/category.html">Categorias</a>
+      <a class="nav-link" href="/valuation.html">Valor total</a>
+    </nav>
+  </header>
+
+  <main class="layout single-column">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Consulta por categoria</h2>
+          <p id="category-summary" class="muted">Carregando livros...</p>
+        </div>
+      </div>
+
+      <div class="grid category-controls">
+        <label>
+          Categoria
+          <select id="category-filter"></select>
+        </label>
+
+        <label>
+          Ordenar por
+          <select id="sort-field">
+            <option value="title">Ordem alfabetica (titulo)</option>
+            <option value="published_year">Ano</option>
+            <option value="publisher">Editora</option>
+            <option value="author">Autor</option>
+          </select>
+        </label>
+
+        <label>
+          Direcao
+          <select id="sort-direction">
+            <option value="asc">Crescente</option>
+            <option value="desc">Decrescente</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div id="category-book-list"></div>
+    </section>
+  </main>
+
+  <script src="/js/category.js"></script>
+</body>
+</html>

@@ -30,6 +30,7 @@ npm start
 Depois abra:
 
 - `http://localhost:3000/catalog.html`
+- `http://localhost:3000/category.html`
 - `http://localhost:3000/valuation.html`
 
 ## Variáveis de ambiente
